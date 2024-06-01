@@ -67,7 +67,6 @@ const App = () => {
   // Resets the game to a new round.
   const handleResetPress = () => {
     startNewGame();
-    handleRetryPress();
   };
 
   // Clears the input field and re-enables all number buttons.
