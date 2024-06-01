@@ -7,6 +7,7 @@ const App = () => {
   const [targetValue, setTargetValue] = useState(0);
   const [generatedExpression, setGeneratedExpression] = useState('');
   const [userValue, setUserValue] = useState(null);
+  const [attemptsRemaining, setAttemptsRemaining] = useState(3);
 
   useEffect(() => {
     startNewGame();
@@ -16,6 +17,7 @@ const App = () => {
     generateRandomNumbers();
     setInput('');
     setUserValue(null);
+    setAttemptsRemaining(3);
   };
 
   const generateRandomNumbers = () => {
@@ -72,27 +74,40 @@ const App = () => {
     }
 
     try {
-      const result = eval(input); // Evaluate the user's input
+      const result = eval(input);
       setUserValue(result);
 
-      if (result === targetValue) {
-        Alert.alert(
-          'Congratulations! You won the game.',
-          'Tap the button to start a new game.',
-          [
-            { text: 'New Game', onPress: startNewGame }
-          ]
-        );
-      } else {
-        Alert.alert(
-          'Your expression is incorrect.',
-          'Tap the button to try again.',
-          [
-            { text: 'Retry', onPress: handleRetryPress }
-          ]
-        );
+      if (attemptsRemaining > 1) { // Check if there are attempts left BEFORE decrementing
+        setAttemptsRemaining(attemptsRemaining - 1); // Decrement attempts
+        if (result === targetValue) {
+          Alert.alert(
+            'Congratulations! You won the game.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
+          );
+        } else {
+          Alert.alert(
+            'Your expression is incorrect.',
+            'Tap the button to try again.',
+            [{ text: 'Retry', onPress: handleRetryPress }]
+          );
+        }
+      } else { // This is the last attempt
+        setAttemptsRemaining(0); // Set attempts to 0
+        if (result === targetValue) {
+          Alert.alert(
+            'Congratulations! You won the game.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
+          );
+        } else {
+          Alert.alert(
+            'Incorrect! You are out of attempts.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
+          );
+        }
       }
-      
     } catch (error) {
       Alert.alert('Error', 'Invalid expression.');
     }
@@ -101,44 +116,99 @@ const App = () => {
   const formatTargetValue = (value) => {
     return Number.isInteger(value) ? value.toString() : value.toFixed(2).toString();
   };
-  
+
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.inputBar}>Input: {input}</Text>
-      <Text style={styles.targetValue}>Target Value: {formatTargetValue(targetValue)}</Text>
-      <Text style={styles.generatedExpression}>Generated Expression: {generatedExpression}</Text>
-      <Text style={styles.userValue}>User Value: {userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
-      <View style={styles.buttonGroup}>
-        {numbers.map((number, index) => (
-          <Button
-            key={index}
-            title={number.value.toString()}
-            onPress={() => handleNumberPress(number)}
-            disabled={number.disabled}
-          />
-        ))}
-      </View>
-      <View style={styles.buttonGroup}>
-        <Button title="+" onPress={() => handleOperationPress('+')} />
-        <Button title="-" onPress={() => handleOperationPress('-')} />
-        <Button title="*" onPress={() => handleOperationPress('*')} />
-        <Button title="/" onPress={() => handleOperationPress('/')} />
-      </View>
-      <View style={styles.buttonGroup}>
-        <Button title="Reset" onPress={handleResetPress} />
-        <Button title="Check" onPress={handleCheckPress} />
+    <View style={styles.mainContainer}>
+      <View style={styles.innerContainer}>
+        <Text style={styles.header}>EXPRESSION BUILDING</Text>
+        <Text style={styles.explanation}>In this game, you will create an expression that gives the target value.</Text>
+        <View style={styles.valueSection}>
+          {/* YOUR VALUE */}
+          <View style={styles.valueItem}>
+            <Text style={styles.valueLabel}>YOUR VALUE</Text>
+            <View style={styles.valueBox}>
+              <Text style={styles.valueText}>{userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
+            </View>
+          </View>
+
+          {/* TARGET VALUE */}
+          <View style={styles.valueItem}>
+            <Text style={styles.valueLabel}>TARGET VALUE</Text>
+            <View style={styles.valueBox}>
+              <Text style={styles.valueText}>{formatTargetValue(targetValue)}</Text>
+            </View>
+          </View>
+
+          {/* TIMES REMAINING */}
+          <View style={styles.valueItem}>
+            <Text style={styles.valueLabel}>TIMES REMAINING</Text>
+            <View style={styles.valueBox}>
+              <Text style={styles.valueText}>{attemptsRemaining}</Text>
+            </View>
+          </View>
+        </View>
+        <Text style={styles.inputBar}>Input: {input}</Text>
+        <Text style={styles.targetValue}>Target Value: {formatTargetValue(targetValue)}</Text>
+        <Text style={styles.generatedExpression}>Generated Expression: {generatedExpression}</Text>
+        <Text style={styles.userValue}>User Value: {userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
+
+        <View style={styles.buttonGroup}>
+          {numbers.map((number, index) => (
+            <Button
+              key={index}
+              title={number.value.toString()}
+              onPress={() => handleNumberPress(number)}
+              disabled={number.disabled}
+            />
+          ))}
+        </View>
+        <View style={styles.buttonGroup}>
+          <Button title="+" onPress={() => handleOperationPress('+')} />
+          <Button title="-" onPress={() => handleOperationPress('-')} />
+          <Button title="*" onPress={() => handleOperationPress('*')} />
+          <Button title="/" onPress={() => handleOperationPress('/')} />
+        </View>
+        <View style={styles.buttonGroup}>
+          <Button title="Reset" onPress={handleResetPress} />
+          <Button title="Check" onPress={handleCheckPress} />
+        </View>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#354B5E', // Dark Blue Background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Inner Container for Content
+  innerContainer: {
+    backgroundColor: '#a0dcfc', // Light Blue Box
+    padding: 20,
+    borderRadius: 10, // Optional: Rounded corners for the box
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5fcff',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    color: '#782528',
+  },
+  explanation: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20, // Added for spacing
+    color: '#782528',
   },
   inputBar: {
     fontSize: 24,
