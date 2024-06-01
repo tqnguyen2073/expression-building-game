@@ -77,29 +77,31 @@ const App = () => {
 
       if (result === targetValue) {
         Alert.alert(
-          'Congratulations!',
-          'Your answer is correct!',
+          'Congratulations! You won the game.',
+          'Tap the button to start a new game.',
           [
-            { text: 'Start New Game', onPress: startNewGame }
+            { text: 'New Game', onPress: startNewGame }
           ]
         );
       } else {
         Alert.alert(
-          'Incorrect',
-          `Your answer is incorrect. Target value is ${formatTargetValue(targetValue)}, but your result is ${formatTargetValue(result)}.`,
+          'Your expression is incorrect.',
+          'Tap the button to try again.',
           [
             { text: 'Retry', onPress: handleRetryPress }
           ]
         );
       }
+      
     } catch (error) {
       Alert.alert('Error', 'Invalid expression.');
     }
   };
 
   const formatTargetValue = (value) => {
-    return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+    return Number.isInteger(value) ? value.toString() : value.toFixed(2).toString();
   };
+  
 
   return (
     <View style={styles.container}>
