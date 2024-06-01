@@ -86,7 +86,7 @@ const App = () => {
       } else {
         Alert.alert(
           'Incorrect',
-          `Your answer is incorrect. Target value is ${targetValue.toFixed(2)}, but your result is ${result.toFixed(2)}.`,
+          `Your answer is incorrect. Target value is ${formatTargetValue(targetValue)}, but your result is ${formatTargetValue(result)}.`,
           [
             { text: 'Retry', onPress: handleRetryPress }
           ]
@@ -97,12 +97,16 @@ const App = () => {
     }
   };
 
+  const formatTargetValue = (value) => {
+    return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.inputBar}>Input: {input}</Text>
-      <Text style={styles.targetValue}>Target Value: {targetValue.toFixed(2)}</Text>
+      <Text style={styles.targetValue}>Target Value: {formatTargetValue(targetValue)}</Text>
       <Text style={styles.generatedExpression}>Generated Expression: {generatedExpression}</Text>
-      <Text style={styles.userValue}>User Value: {userValue !== null ? userValue.toFixed(2) : 'N/A'}</Text>
+      <Text style={styles.userValue}>User Value: {userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
       <View style={styles.buttonGroup}>
         {numbers.map((number, index) => (
           <Button
