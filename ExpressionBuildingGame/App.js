@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Button, StyleSheet, Alert } from 'react-native';
 
 const App = () => {
   const [numbers, setNumbers] = useState([]);
@@ -9,10 +9,12 @@ const App = () => {
   const [userValue, setUserValue] = useState(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
 
+  // Initializes the game on component mount.
   useEffect(() => {
     startNewGame();
   }, []);
 
+  // Starts a new game round: resets the game state and generates new numbers, restart the attempt to 3.
   const startNewGame = () => {
     generateRandomNumbers();
     setInput('');
@@ -20,6 +22,7 @@ const App = () => {
     setAttemptsRemaining(3);
   };
 
+  // Generates four unique random numbers and a corresponding expression with a target value.
   const generateRandomNumbers = () => {
     let randomNumbers = [];
     while (randomNumbers.length < 4) {
@@ -35,6 +38,7 @@ const App = () => {
     setTargetValue(result);
   };
 
+  // Helper function to create the expression string from the given numbers and random operations.
   const generateRandomExpression = (numbers) => {
     const operations = ['+', '-', '*', '/'];
     let expression = numbers[0].value.toString();
@@ -47,6 +51,7 @@ const App = () => {
     return expression;
   };
 
+  // Appends the pressed number to the current input and disables the number button.
   const handleNumberPress = (number) => {
     setInput(input + number.value);
     setNumbers(numbers.map((num) =>
@@ -54,19 +59,23 @@ const App = () => {
     ));
   };
 
+  // Appends the pressed operator to the current input.
   const handleOperationPress = (operation) => {
     setInput(input + operation);
   };
 
+  // Resets the game to a new round.
   const handleResetPress = () => {
     startNewGame();
   };
 
+  // Clears the input field and re-enables all number buttons.
   const handleRetryPress = () => {
     setInput('');
     setNumbers(numbers.map((num) => ({ ...num, disabled: false })));
   };
 
+  // Evaluates the user's input and checks if it matches the target value.
   const handleCheckPress = () => {
     if (input.length === 0 || !/\d+[+\-*/]\d+/.test(input)) {
       Alert.alert('Error', 'Please enter a valid expression using the numbers and operations.');
@@ -81,30 +90,30 @@ const App = () => {
         setAttemptsRemaining(attemptsRemaining - 1); // Decrement attempts
         if (result === targetValue) {
           Alert.alert(
-              'Congratulations! You won the game.',
-              'Tap the button to start a new game.',
-              [{ text: 'New Game', onPress: startNewGame }]
+            'Congratulations! You won the game.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
           );
         } else {
           Alert.alert(
-              'Your expression is incorrect.',
-              'Tap the button to try again.',
-              [{ text: 'Retry', onPress: handleRetryPress }]
+            'Your expression is incorrect.',
+            'Tap the button to try again.',
+            [{ text: 'Retry', onPress: handleRetryPress }]
           );
         }
       } else { // This is the last attempt
         setAttemptsRemaining(0); // Set attempts to 0
         if (result === targetValue) {
           Alert.alert(
-              'Congratulations! You won the game.',
-              'Tap the button to start a new game.',
-              [{ text: 'New Game', onPress: startNewGame }]
+            'Congratulations! You won the game.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
           );
         } else {
           Alert.alert(
-              'Incorrect! You are out of attempts.',
-              'Tap the button to start a new game.',
-              [{ text: 'New Game', onPress: startNewGame }]
+            'Incorrect! You are out of attempts.',
+            'Tap the button to start a new game.',
+            [{ text: 'New Game', onPress: startNewGame }]
           );
         }
       }
@@ -113,83 +122,162 @@ const App = () => {
     }
   };
 
+  // Formats the target value for display (rounds to two decimals if needed).
   const formatTargetValue = (value) => {
     return Number.isInteger(value) ? value.toString() : value.toFixed(2).toString();
   };
 
 
-  return (
-      <View style={styles.mainContainer}>
-        <View style={styles.innerContainer}>
-          <Text style={styles.header}>EXPRESSION BUILDING</Text>
-          <Text style={styles.explanation}>In this game, you will create an expression that gives the target value.</Text>
-          <View style={styles.valueSection}>
-            {/* YOUR VALUE */}
-            <View style={styles.valueItem}>
-              <Text style={styles.valueLabel}>YOUR VALUE</Text>
-              <View style={styles.valueBox}>
-                <Text style={styles.valueText}>{userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
-              </View>
-            </View>
-
-            {/* TARGET VALUE */}
-            <View style={styles.valueItem}>
-              <Text style={styles.valueLabel}>TARGET VALUE</Text>
-              <View style={styles.valueBox}>
-                <Text style={styles.valueText}>{formatTargetValue(targetValue)}</Text>
-              </View>
-            </View>
-
-            {/* TIMES REMAINING */}
-            <View style={styles.valueItem}>
-              <Text style={styles.valueLabel}>TIMES REMAINING</Text>
-              <View style={styles.valueBox}>
-                <Text style={styles.valueText}>{attemptsRemaining}</Text>
-              </View>
-            </View>
-          </View>
-          <Text style={styles.inputBar}>Input: {input}</Text>
-          <Text style={styles.targetValue}>Target Value: {formatTargetValue(targetValue)}</Text>
-          <Text style={styles.generatedExpression}>Generated Expression: {generatedExpression}</Text>
-          <Text style={styles.userValue}>User Value: {userValue !== null ? formatTargetValue(userValue) : 'N/A'}</Text>
-
-      <View style={styles.buttonGroup}>
-        {numbers.map((number, index) => (
-          <Button
-            key={index}
-            title={number.value.toString()}
-            onPress={() => handleNumberPress(number)}
-            disabled={number.disabled}
-          />
-        ))}
-      </View>
-      <View style={styles.buttonGroup}>
-        <Button title="+" onPress={() => handleOperationPress('+')} />
-        <Button title="-" onPress={() => handleOperationPress('-')} />
-        <Button title="*" onPress={() => handleOperationPress('*')} />
-        <Button title="/" onPress={() => handleOperationPress('/')} />
-      </View>
-      <View style={styles.buttonGroup}>
-        <Button title="Reset" onPress={handleResetPress} />
-        <Button title="Check" onPress={handleCheckPress} />
+  // Value Item Component
+  const ValueItem = ({ label, value }) => (
+    <View style={styles.valueItem}>
+      <Text style={styles.valueLabel}>{label}</Text>
+      <View style={styles.valueBox}>
+        <Text style={styles.valueText}>{value}</Text>
       </View>
     </View>
-  </View>
+  );
+
+  // Number Button Component
+  const NumberButton = ({ number, onPress }) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    const handlePressIn = () => {
+      setIsPressed(true);
+      onPress(number);
+    };
+
+    const handlePressOut = () => {
+      setIsPressed(false);
+    };
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.button,
+          isPressed ? styles.pressedNumberButton : styles.numberButton, // Conditional styling
+          number.disabled ? styles.disabledButton : null, // Keep disabled styling
+        ]}
+        onPressIn={handlePressIn} // Use onPressIn and onPressOut for styling
+        onPressOut={handlePressOut}
+        disabled={number.disabled}
+      >
+        <Text style={styles.buttonText}>{number.value}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Operator Button Component
+  const OperatorButton = ({ operator, onPress }) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    const handlePress = () => {
+      setIsPressed(true);
+      onPress(operator);
+      // Immediately reset the pressed state:
+      setTimeout(() => setIsPressed(false), 100);
+    };
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.button,
+          isPressed ? styles.pressedOperatorButton : styles.operatorButton,
+        ]}
+        onPress={handlePress}
+      >
+        <Text style={styles.buttonText}>{operator}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // State to control Check button color
+  const [isCheckButtonEnabled, setIsCheckButtonEnabled] = useState(false);
+
+  useEffect(() => {
+    // Check button enabled if there is input
+    setIsCheckButtonEnabled(input.trim().length > 0);
+  }, [input]); // Update when input changes
+
+  // Main render function: returns the UI elements of the game
+  return (
+    <View style={styles.mainContainer}>
+      <View style={styles.innerContainer}>
+        <Text style={styles.header}>EXPRESSION BUILDING</Text>
+        <Text style={styles.explanation}>In this game, you will create an expression that gives the target value.</Text>
+
+        {/* Value Section */}
+        <View style={styles.valueSection}>
+          <ValueItem label="YOUR VALUE" value={userValue !== null ? <Text style={styles.valueText}>{formatTargetValue(userValue)}</Text> : 'N/A'} />
+          <ValueItem label="TARGET VALUE" value={<Text style={styles.valueText}>{formatTargetValue(targetValue)}</Text>} />
+          <ValueItem label="TIMES" value={<Text style={styles.valueText}>{attemptsRemaining}</Text>} />
+        </View>
+
+        {/* Expression Input Box */}
+        <View style={styles.inputBox}>
+          <Text style={[styles.inputText, styles.alignRight]}>{input}</Text>
+        </View>
+
+        {/* Number and Operation Buttons (Original Structure, Modified Layout, Smaller Width, Updated Colors) */}
+        <View style={[styles.buttonContainer, styles.smallerWidth]}>
+          <View style={styles.buttonRow}>
+            {numbers.slice(0, 2).map((number, index) => (
+              <NumberButton key={index} number={number} onPress={handleNumberPress} />
+            ))}
+            {['+', '-'].map((operator, index) => (
+              <OperatorButton key={index + 4} operator={operator} onPress={handleOperationPress} />
+            ))}
+          </View>
+
+          <View style={styles.buttonRow}>
+            {numbers.slice(2, 4).map((number, index) => (
+              <NumberButton key={index + 2} number={number} onPress={handleNumberPress} />
+            ))}
+            {['*', '/'].map((operator, index) => (
+              <OperatorButton key={index + 6} operator={operator} onPress={handleOperationPress} />
+            ))}
+          </View>
+        </View>
+
+        {/* Reset and Check Buttons*/}
+        <View style={[styles.buttonGroup, { alignSelf: 'center' }]}>
+          <TouchableOpacity style={styles.resetButton} onPress={handleResetPress}>
+            <Text style={styles.resetButtonText}>Reset</Text>
+          </TouchableOpacity>
+
+          {/* Check button */}
+          <TouchableOpacity
+            style={[
+              styles.checkButton,
+              styles.smallerButton,
+              isCheckButtonEnabled ? {} : styles.disabledButton, // Apply disabled style if not enabled
+            ]}
+            onPress={handleCheckPress}
+            disabled={!isCheckButtonEnabled} // Disable button when no input
+          >
+            <Text style={styles.checkButtonText}>Check</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Generate Expression to test */}
+        <Text style={styles.generatedExpression}>Generated Expression: {generatedExpression}</Text>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#354B5E', // Dark Blue Background
+    backgroundColor: '#354B5E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   // Inner Container for Content
   innerContainer: {
-    backgroundColor: '#a0dcfc', // Light Blue Box
+    backgroundColor: '#a0dcfc',
     padding: 20,
-    borderRadius: 10, // Optional: Rounded corners for the box
+    borderRadius: 10,
   },
   container: {
     flex: 1,
@@ -207,29 +295,120 @@ const styles = StyleSheet.create({
   explanation: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 20, // Added for spacing
+    marginBottom: 20,
     color: '#782528',
   },
-  inputBar: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  targetValue: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  generatedExpression: {
-    fontSize: 20,
-    marginBottom: 10,
-    color: 'gray',
-  },
-  userValue: {
-    fontSize: 24,
+  valueSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: 20,
+  },
+  valueItem: {
+    alignItems: 'center',
+  },
+  valueLabel: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  valueBox: {
+    backgroundColor: '#c0b4b4',
+    padding: 10,
+    borderRadius: 5,
+  },
+  valueText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#782528',
+  },
+  inputBox: {
+    backgroundColor: '#c0b4b4',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    alignSelf: 'center',
+    width: 220,
+  },
+  inputText: {
+    fontSize: 18,
+    textAlign: 'right',
+    color: '#983444',
+  },
+  alignRight: {
+    textAlign: 'right',
+  },
+  buttonContainer: {
+    marginBottom: 20,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 45,
+    height: 45,
+    borderRadius: 5,
+    margin: 5,
+  },
+  numberButton: {
+    backgroundColor: '#983444',
+  },
+  operatorButton: {
+    backgroundColor: '#983444',
+  },
+  pressedOperatorButton: {
+    backgroundColor: '#707c8c',
+  },
+  pressedNumberButton: {
+    backgroundColor: '#707c8c',
+  },
+  disabledButton: {
+    backgroundColor: '#999',
+  },
+  buttonText: {
+    fontSize: 16,
+    color: 'white',
+  },
+  smallerWidth: {
+    width: '80%',
+    alignSelf: 'center',
   },
   buttonGroup: {
     flexDirection: 'row',
-    marginBottom: 20,
+    alignItems: 'center',
+  },
+  resetButton: {
+    backgroundColor: '#983444',
+    padding: 10,
+    borderRadius: 5,
+    width: 80,
+    height: 40,
+    marginRight: 20,
+  },
+  checkButton: {
+    backgroundColor: '#983444',
+    padding: 10,
+    borderRadius: 5,
+    width: 80,
+    height: 40,
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  checkButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  generatedExpression: {
+    fontSize: 12,
+    color: '#782528',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
